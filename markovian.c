@@ -1,4 +1,5 @@
 #include <glib.h>
+<<<<<<< HEAD
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -16,6 +17,9 @@ int isDigitsPunct(const char *str) {
     }
     return 1;
 }
+=======
+#include <stdio.h>
+>>>>>>> a1d96cb891c8faf1800d081ee89d605cdf004036
 
 int main(void) {
     GHashTable *words = g_hash_table_new(g_str_hash, g_str_equal);
@@ -78,9 +82,6 @@ int main(void) {
     g_hash_table_insert(prob_dist2, "Virginia", GINT_TO_POINTER(10));
     g_hash_table_insert(prob_dist2, "Texas", GINT_TO_POINTER(50));
     g_hash_table_insert(prob_dist2, "Ohio", GINT_TO_POINTER(40));
-    
-    g_hash_table_insert(words, "1", (gpointer) prob_dist1);
-    g_hash_table_insert(words, "2", (gpointer) prob_dist2);
     
     g_hash_table_destroy(prob_dist1);
     g_hash_table_destroy(prob_dist2);
