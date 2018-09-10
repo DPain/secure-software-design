@@ -11,7 +11,9 @@ typedef struct Node {
 } Node;
 
 void incrementFreq(Base** map, char* word, char* pair);
-Node* getNode(Base** map, char* word);
+Base* getBase(Base** map, char* word);
+Base* getNthBase(Base** map, int n);
 int getFreq(Base** map, char* key, char* pair);
-void calcTotalFreq(const char* key, Node* value, int* sum);
-int getTotalFreq(Base** map);
+int getTotalFreq(Base** map, char* key);
+int getAbsTotalFreq(Base** map);
+int getMapSize(Base** map);

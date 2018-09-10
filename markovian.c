@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h> 
 
 #include "distribution.h"
 
@@ -49,18 +50,19 @@ void readBible(Base **words) {
         temp[strcspn(temp, "\n")] = 0;
         char *word = strtok(temp, " ");
         while (word != NULL) {
-            
-            printf("word: %s\n", word);
-            if(prevWord != NULL) {
-                // Probability distribution job here
-                char* base = strdup(prevWord);
-                base[strcspn(base, "\n")] = 0;
-                char* pair = strdup(word);
-                pair[strcspn(pair, "\n")] = 0;
-                incrementFreq(&*words, base, pair);
+            if(!isDigitsPunct(word)) {
+                printf("word: %s\n", word);
+                if(prevWord != NULL) {
+                    // Probability distribution job here
+                    char* base = strdup(prevWord);
+                    base[strcspn(base, "\n")] = 0;
+                    char* pair = strdup(word);
+                    pair[strcspn(pair, "\n")] = 0;
+                    incrementFreq(&*words, base, pair);
+                }
+                prevWord = strdup(word);
+                prevWord[strcspn(prevWord, "\n")] = 0;
             }
-            prevWord = strdup(word);
-            prevWord[strcspn(prevWord, "\n")] = 0;
             
             word = strtok(NULL, " ");
         }
@@ -88,16 +90,24 @@ void readExample(Base **words) {
 }
 
 char* generateRandomSentence(Base *map) {
+    srand(time(0));
+    int mapSize = getMapSize(&map);
+    int num = rand() % mapSize;
+    
+    printf("Random number:%d/%d\n", num, mapSize);
+    printf("Random word:%s\n", ((Base*) getNthBase(&map, num))->key);
+    
     return "asdf";
 }
 
 int main(void) {
     Base *words = NULL;
     
-    readExample(&words);
-    //readBible(&words);
+    //readExample(&words);
+    readBible(&words);
     
-    printf("Total Freq: %d\n", getTotalFreq(&words));
+    printf("Abs Total Freq: %d\n", getAbsTotalFreq(&words));
+    printf("Total Freq: %d for Word: %s\n", getTotalFreq(&words, "the"), "the");
     
     printf("%d\n", getFreq(&words, "1:1", "In"));
     printf("%d\n", getFreq(&words, "face", "of"));

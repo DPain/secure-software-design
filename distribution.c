@@ -5,21 +5,22 @@
 #include <string.h>
 
 void incrementFreq(Base** map, char* word, char* pair) {
-    Node* base = (Node*) getNode(&*map, word);
+    Base* base = (Base*) getBase(&*map, word);
     if(base != NULL) {
         // An entry exists in the Hash Table
-        while(base->next != NULL && strcmp(base->pair, pair) != 0) {
-            base = base->next;
+        Node* tempNode = base->node;
+        while(tempNode->next != NULL && strcmp(tempNode->pair, pair) != 0) {
+            tempNode = tempNode->next;
         }
-        if(strcmp(base->pair, pair) == 0) {
-            base->freq++;
+        if(strcmp(tempNode->pair, pair) == 0) {
+            tempNode->freq++;
         } else {
             Node* node = (Node*) malloc(sizeof(Node));
             node->pair = strdup(pair);
             node->freq = 1;
             node->next = NULL;
             
-            base->next = node;
+            tempNode->next = node;
             
             printf("Adding to Existing Node [key:\"%s\" pair:\"%s\"]\n", word, node->pair);
         }
@@ -51,16 +52,28 @@ void incrementFreq(Base** map, char* word, char* pair) {
     }
 }
 
-Node* getNode(Base** map, char* word) {
-    Base* temp = *map;
-    while(temp != NULL) {
-        if(strcmp(temp->key, word) == 0) {
-            return temp->node;
-        } else {
-            temp = temp->next;
+Base* getBase(Base** map, char* word) {
+    Base* tempBase = *map;
+    while(tempBase != NULL) {
+        if(strcmp(tempBase->key, word) == 0) {
+            return tempBase;
         }
+        tempBase = tempBase->next;
     }
     return NULL;
+}
+
+Base* getNthBase(Base** map, int n) {
+    Base* tempBase = *map;
+    for(int i = 0; i < n; i++) {
+        if(tempBase != NULL) {
+            tempBase = tempBase->next;
+        } else {
+            break;
+        }
+    }
+    
+    return tempBase;
 }
 
 int getFreq(Base** map, char* key, char* pair) {
@@ -80,7 +93,22 @@ int getFreq(Base** map, char* key, char* pair) {
     return 0;
 }
 
-int getTotalFreq(Base** map) {
+int getTotalFreq(Base** map, char* key) {
+    int sum = 0;
+    Base* base = getBase(&*map, key);
+    
+    if(base != NULL) {
+        Node* tempNode = base->node;
+        while(tempNode != NULL) {
+            sum += tempNode->freq;
+            tempNode = tempNode->next;
+        }
+    }
+    
+    return sum;
+}
+
+int getAbsTotalFreq(Base** map) {
     int sum = 0;
     
     Base* tempBase = *map;
@@ -93,6 +121,18 @@ int getTotalFreq(Base** map) {
             sum += tempNode->freq;
             tempNode = tempNode->next;
         }
+        tempBase = tempBase->next;
+    }
+    
+    return sum;
+}
+
+int getMapSize(Base** map) {
+    int sum = 0;
+    
+    Base* tempBase = *map;
+    while(tempBase != NULL) {
+        sum++;
         tempBase = tempBase->next;
     }
     
