@@ -1,12 +1,13 @@
-#include <glib.h>
-<<<<<<< HEAD
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
+
+#include "distribution.h"
 
 #define BUFFER_SIZE 1024
 #define SKIP_FIRST_LINE 13
-#define MAX_READ_LINE 2
+#define MAX_READ_LINE 7
 
 int isDigitsPunct(const char *str) {
     while (*str) {
@@ -17,13 +18,8 @@ int isDigitsPunct(const char *str) {
     }
     return 1;
 }
-=======
-#include <stdio.h>
->>>>>>> a1d96cb891c8faf1800d081ee89d605cdf004036
 
-int main(void) {
-    GHashTable *words = g_hash_table_new(g_str_hash, g_str_equal);
-    
+void readBible(Base **words) {
     // Buffer used to read the file
     char str[BUFFER_SIZE];
     
@@ -42,51 +38,73 @@ int main(void) {
     }
     
     int line_num = 0;
-    char *prevWord;
+    char *prevWord = NULL;
     while (fgets(str, BUFFER_SIZE, fp) && line_num < MAX_READ_LINE) {
         printf("line: %s\n", str);
-        int size = strlen(str);
 
         printf("Splitting string \"%s\" into words:\n", str);
-        char *word = strtok(str, " ");
+        char temp[BUFFER_SIZE];
+        strcpy(temp, str);
+        // Removing new line char
+        temp[strcspn(temp, "\n")] = 0;
+        char *word = strtok(temp, " ");
         while (word != NULL) {
-            if(!isDigitsPunct(word)) {
-                printf("word: %s\n", word);
-            }
             
+            printf("word: %s\n", word);
             if(prevWord != NULL) {
                 // Probability distribution job here
-                if(g_hash_table_contains(words, prevWord)) {
-                    //int count = g_hash_table_lookup(g_hash_table_lookup(words, prevWord), word);
-                } else {
-                    //(words, prevWord, (gpointer) g_hash_table_lookup(words, prevWord), word);
-                }
+                char* base = strdup(prevWord);
+                base[strcspn(base, "\n")] = 0;
+                char* pair = strdup(word);
+                pair[strcspn(pair, "\n")] = 0;
+                incrementFreq(&*words, base, pair);
             }
+            prevWord = strdup(word);
+            prevWord[strcspn(prevWord, "\n")] = 0;
             
-            prevWord = word;
             word = strtok(NULL, " ");
         }
         line_num++;
     }
+}
+
+void readExample(Base **words) {
+    char text[BUFFER_SIZE] = "In the beginning God created the heaven and the earth. And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters. And God said, Let there be light: and there was light. And God saw the light, that it was good: and God divided the light from the darkness. And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day.";
     
-    /**
+    char *prevWord = NULL;
+    printf("%s\n", text);
+    char *word = strtok(text, " ");
+    while (word != NULL) {
+        
+        //printf("word: %s\n", word);
+        if(prevWord != NULL) {
+            // Probability distribution job here
+            incrementFreq(&*words, prevWord, word);
+        }
+        prevWord = word;
+        
+        word = strtok(NULL, " ");
+    }
+}
+
+char* generateRandomSentence(Base *map) {
+    return "asdf";
+}
+
+int main(void) {
+    Base *words = NULL;
     
+    readExample(&words);
+    //readBible(&words);
     
-    GHashTable *prob_dist1 = g_hash_table_new(g_str_hash, g_str_equal);
-    g_hash_table_insert(prob_dist1, "Virginia", GINT_TO_POINTER(20));
-    g_hash_table_insert(prob_dist1, "Texas", GINT_TO_POINTER(33));
-    g_hash_table_insert(prob_dist1, "Ohio", GINT_TO_POINTER(30));
-    g_hash_table_insert(prob_dist1, "Delaware", GINT_TO_POINTER(17));
+    printf("Total Freq: %d\n", getTotalFreq(&words));
     
-    GHashTable *prob_dist2 = g_hash_table_new(g_str_hash, g_str_equal);
-    g_hash_table_insert(prob_dist2, "Virginia", GINT_TO_POINTER(10));
-    g_hash_table_insert(prob_dist2, "Texas", GINT_TO_POINTER(50));
-    g_hash_table_insert(prob_dist2, "Ohio", GINT_TO_POINTER(40));
+    printf("%d\n", getFreq(&words, "1:1", "In"));
+    printf("%d\n", getFreq(&words, "face", "of"));
+    printf("%d\n", getFreq(&words, "the", "waters."));
     
-    g_hash_table_destroy(prob_dist1);
-    g_hash_table_destroy(prob_dist2);
-    g_hash_table_destroy(words);
-    */
+    char* output = generateRandomSentence(words);
+    printf("%s\n", output);
     
     return 0;
 }
