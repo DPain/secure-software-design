@@ -9,6 +9,7 @@
 #define BUFFER_SIZE 1024
 #define SKIP_FIRST_LINE 13
 #define MAX_READ_LINE 7
+#define TWITTER_MAX_SIZE 280
 
 int isDigitsPunct(const char *str) {
     while (*str) {
@@ -25,7 +26,7 @@ void readBible(Base **words) {
     char str[BUFFER_SIZE];
     
     //Reading duh Bible
-    FILE * fp = fopen("project_gutenberg_the_king_james_bible.txt", "r");
+    FILE * fp = fopen("10.txt", "r");
     if (fp == NULL) {
         printf("File does not exist!\n");
         exit(1);
@@ -90,24 +91,58 @@ void readExample(Base **words) {
 }
 
 char* generateRandomSentence(Base *map) {
+    char* tweet = (char*) malloc(sizeof(char) * TWITTER_MAX_SIZE);
+    
     srand(time(0));
     int mapSize = getMapSize(&map);
     int num = rand() % mapSize;
     
-    printf("Random number:%d/%d\n", num, mapSize);
-    printf("Random word:%s\n", ((Base*) getNthBase(&map, num))->key);
+    int i = 0;
+    Base* base = getNthBase(&map, num);
+    tweet[i] = strdup(base->key);
+    i += strlen(base->key);
     
-    return "asdf";
+    printf("Random number:%d/%d\n", num, mapSize);
+    printf("Random word:%s\n", base->key);
+    
+    int nodeSize = getTotalFreq(&map, base->key);
+    num = rand() % nodeSize;
+    
+    Node* node = (Node*) getNodeFromRatio(&base, num);
+    // Account for trailing \0 character
+    while(i + strlen(node->pair) < (TWITTER_MAX_SIZE - 1)) {
+        tweet[i] = strdup(node->pair);
+        i += strlen(node->pair);
+        printf("Random key pair:%s - %s %d Tweet Size:%d\n", base->key, node->pair, num, i);
+        
+        printf("Getting Base\n");
+        base = getBase(&map, node->pair);
+        // If there are no key pairs available, it will always randomly choose another base
+        while(base == NULL) {
+            mapSize = getMapSize(&map);
+            num = rand() % mapSize;
+            base = getNthBase(&map, num);
+        }
+        
+        nodeSize = getTotalFreq(&map, base->key);
+        num = rand() % nodeSize;
+        
+        node = (Node*) getNodeFromRatio(&base, num);
+    }
+    
+    return tweet;
 }
 
 int main(void) {
     Base *words = NULL;
     
-    //readExample(&words);
-    readBible(&words);
+    readExample(&words);
+    //readBible(&words);
     
     printf("Abs Total Freq: %d\n", getAbsTotalFreq(&words));
     printf("Total Freq: %d for Word: %s\n", getTotalFreq(&words, "the"), "the");
+    printf("Total Freq: %d for Word Pair: %s\n", getFreq(&words, "the", "beginning"), "the-beginning");
+    printPairs(&words, "the");
     
     printf("%d\n", getFreq(&words, "1:1", "In"));
     printf("%d\n", getFreq(&words, "face", "of"));

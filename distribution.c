@@ -12,6 +12,7 @@ void incrementFreq(Base** map, char* word, char* pair) {
         while(tempNode->next != NULL && strcmp(tempNode->pair, pair) != 0) {
             tempNode = tempNode->next;
         }
+        
         if(strcmp(tempNode->pair, pair) == 0) {
             tempNode->freq++;
         } else {
@@ -22,7 +23,7 @@ void incrementFreq(Base** map, char* word, char* pair) {
             
             tempNode->next = node;
             
-            printf("Adding to Existing Node [key:\"%s\" pair:\"%s\"]\n", word, node->pair);
+            printf("Adding to Existing Node [key:\"%s\" pair:\"%s\"]\n", word, pair);
         }
     } else {
         // No word pair does not exist in the Hash Table
@@ -31,7 +32,7 @@ void incrementFreq(Base** map, char* word, char* pair) {
         node->freq = 1;
         node->next = NULL;
         
-        printf("Adding to New Node [key:\"%s\" pair:\"%s\"]\n", word, node->pair);
+        printf("Adding to New Node [key:\"%s\" pair:\"%s\"]\n", word, pair);
         char* key = strdup(word);
         
         Base* newBase = (Base*) malloc(sizeof(Base));
@@ -52,6 +53,9 @@ void incrementFreq(Base** map, char* word, char* pair) {
     }
 }
 
+/**
+ * Finds the Base of the corresponding word.
+ */
 Base* getBase(Base** map, char* word) {
     Base* tempBase = *map;
     while(tempBase != NULL) {
@@ -63,6 +67,9 @@ Base* getBase(Base** map, char* word) {
     return NULL;
 }
 
+/**
+ * Finds the Nth Base.
+ */
 Base* getNthBase(Base** map, int n) {
     Base* tempBase = *map;
     for(int i = 0; i < n; i++) {
@@ -76,6 +83,23 @@ Base* getNthBase(Base** map, int n) {
     return tempBase;
 }
 
+/**
+ * Gets a Node based off a ratio.
+ */
+Node* getNodeFromRatio(Base** base, int n) {
+    Node* tempNode = (*base)->node;
+    int i = 0;
+    while(i <= n && tempNode->next) {
+        i += tempNode->freq;
+        tempNode = tempNode->next;
+    }
+    
+    return tempNode;
+}
+
+/**
+ * Finds the frequency of the corresponding key pair.
+ */
 int getFreq(Base** map, char* key, char* pair) {
     Base* tempBase = *map;
     while(tempBase != NULL) {
@@ -93,6 +117,9 @@ int getFreq(Base** map, char* key, char* pair) {
     return 0;
 }
 
+/**
+ * Finds the total frequency of the corresponding key.
+ */
 int getTotalFreq(Base** map, char* key) {
     int sum = 0;
     Base* base = getBase(&*map, key);
@@ -115,7 +142,6 @@ int getAbsTotalFreq(Base** map) {
     
     while(tempBase != NULL) {
         Node* tempNode = tempBase->node;
-        //printf("%s\n", tempBase->key);
         printf("[Key:%s , Pair:%s , Freq:%d]\n", tempBase->key, tempNode->pair, tempNode->freq);
         while(tempNode != NULL) {
             sum += tempNode->freq;
@@ -137,4 +163,20 @@ int getMapSize(Base** map) {
     }
     
     return sum;
+}
+
+/**
+ * Prints the entire pair list from a key.
+ */
+void printPairs(Base** map, char* key) {
+    Base* base = getBase(&*map, key);
+    printf("Printing all the pairs for key:%s\n", key);
+    
+    if(base != NULL) {
+        Node* tempNode = base->node;
+        while(tempNode != NULL) {
+            printf("Pair:%s Freq:%d\n", tempNode->pair, tempNode->freq);
+            tempNode = tempNode->next;
+        }
+    }
 }
